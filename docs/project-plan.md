@@ -29,12 +29,14 @@ Build an Android app with a Wear OS companion that runs designated tasks from sl
 - Add a delayed task scheduler. Complete with platform `AlarmManager`.
 - Add the "pause all active media" task. Complete through `MediaSessionManager`, pending real-device permission verification.
 - Add unit-testable trigger routing, scheduling, task execution, and wake/stand-up logic. Complete.
+- Add native phone UI for automation controls, permission state, and event history. Complete for the current functional scope.
 
 ### 3. Wear OS Sleep Trigger
 
 - Add Wear OS Health Services passive monitoring integration.
 - Send sleep trigger events from watch to phone. Payload contract and phone routing layer exist; transport implementation remains.
 - Add fallback/manual simulation controls for devices that do not expose real-time sleep events.
+- Add compact watch UI for sleep, wake, and stood-up trigger controls. Complete as a local surface; transport remains.
 
 ### 4. Health Connect History
 
