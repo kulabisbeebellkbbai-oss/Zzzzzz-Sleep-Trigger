@@ -39,3 +39,7 @@ export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools
 gradle --no-daemon assembleDebug
 ```
 
+Current verification:
+
+- `gradle --no-daemon assembleDebug` passes for `app` and `wear`.
+- The phone app exposes a 10-second simulated sleep trigger for local verification and a 5-minute simulated sleep trigger matching the first requested delay scenario.

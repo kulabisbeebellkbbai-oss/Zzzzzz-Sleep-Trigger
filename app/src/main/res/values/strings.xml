@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Zzzzzz Sleep Trigger</string>
-    <string name="app_status">Sleep trigger planner initialized.</string>
+    <string name="app_status">No sleep trigger events yet.</string>
+    <string name="notification_listener_label">Zzzzzz media pause access</string>
 </resources>
-

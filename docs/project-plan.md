@@ -24,10 +24,10 @@ Build an Android app with a Wear OS companion that runs designated tasks from sl
 
 ### 2. Local Trigger Engine
 
-- Add a local database for trigger definitions and event history.
-- Add a simulated sleep trigger for development.
-- Add a delayed task scheduler.
-- Add the "pause all active media" task.
+- Add a local database for trigger definitions and event history. Partially complete with a SharedPreferences-backed event log.
+- Add a simulated sleep trigger for development. Complete.
+- Add a delayed task scheduler. Complete with platform `AlarmManager`.
+- Add the "pause all active media" task. Complete through `MediaSessionManager`, pending real-device permission verification.
 
 ### 3. Wear OS Sleep Trigger
 
@@ -63,5 +63,4 @@ Build an Android app with a Wear OS companion that runs designated tasks from sl
 
 ## Next Development Step
 
-Implement milestone 2: a local trigger/task engine with simulated sleep events, delayed execution, media pause action, and event logging.
-
+Implement milestone 3: a Wear OS signal bridge that can send normalized watch-side sleep and wake events to the phone trigger engine.

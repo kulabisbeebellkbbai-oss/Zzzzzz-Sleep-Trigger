@@ -3,11 +3,11 @@
 ## Android Phone App
 
 - Settings UI for triggers, delays, task selection, permissions, and event history.
-- Trigger/task engine that maps trigger events to delayed actions.
-- Scheduler for delayed execution. WorkManager is acceptable for flexible timing; AlarmManager may be needed when the user expects tighter timing.
-- Event store for sleep trigger time, scheduled execution time, actual execution time, action result, and error details.
-- Notification listener service for access to active media sessions from other apps.
-- Media control adapter using `MediaSessionManager` and media controllers to pause active sessions.
+- Trigger/task engine that maps trigger events to delayed actions. Initial implementation exists for simulated sleep events.
+- Scheduler for delayed execution. The current implementation uses platform `AlarmManager`; WorkManager can be added later for retryable background jobs.
+- Event store for sleep trigger time, scheduled execution time, actual execution time, action result, and error details. Initial implementation stores local JSON in SharedPreferences.
+- Notification listener service for access to active media sessions from other apps. Initial service exists and must be granted by the user on device.
+- Media control adapter using `MediaSessionManager` and media controllers to pause active sessions. Initial adapter exists.
 
 ## Wear OS Companion
 
@@ -50,4 +50,3 @@
 - Wear OS Health Services: https://developer.android.com/health-and-fitness/guides/health-services
 - Activity Recognition Transition API: https://developer.android.com/develop/sensors-and-location/location/transitions
 - MediaSessionManager: https://developer.android.com/reference/android/media/session/MediaSessionManager
-

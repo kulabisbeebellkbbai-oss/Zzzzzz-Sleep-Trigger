@@ -10,6 +10,8 @@
 6. Task executor pauses active media sessions.
 7. Event log records the outcome.
 
+The current phone implementation supports the same flow from a simulated sleep trigger while the Wear OS signal bridge is still pending.
+
 ## Trigger Model
 
 ```text
@@ -48,6 +50,8 @@ The phone app needs notification listener access to enumerate active media sessi
 - Send pause to each active controller.
 - Record the packages affected and any sessions that reject control.
 
+The first implementation records a human-readable task result. Package-level diagnostic history is deferred until the event store schema is moved from SharedPreferences JSON to a structured database.
+
 ## Sleep Detection Strategy
 
 Real-time trigger detection should come from the Wear OS companion where supported. Health Connect should be used for completed sleep session history and reconciliation after wake, because finalized sleep sessions may not be available until the session ends.
@@ -61,4 +65,3 @@ The second trigger should be modeled as a compound trigger:
 - The trigger fires only after a debounce period to avoid false positives.
 
 Initial implementation can use a conservative "wake plus steps/activity transition" rule. Later versions can refine this with watch-specific capabilities.
-
