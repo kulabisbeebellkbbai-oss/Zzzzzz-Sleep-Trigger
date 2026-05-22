@@ -42,4 +42,10 @@ gradle --no-daemon assembleDebug
 Current verification:
 
 - `gradle --no-daemon assembleDebug` passes for `app` and `wear`.
+- `gradle --no-daemon :app:testDebugUnitTest` passes for the no-emulator trigger/task behavior.
 - The phone app exposes a 10-second simulated sleep trigger for local verification and a 5-minute simulated sleep trigger matching the first requested delay scenario.
+- The phone app exposes a manual stood-up-after-wake trigger route.
+
+Current runtime limitation:
+
+- Emulator and Waydroid UI validation are blocked in this turn, so media-session control and Android permission screens still need device/runtime verification.

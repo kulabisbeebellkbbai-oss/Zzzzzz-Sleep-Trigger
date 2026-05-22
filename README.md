@@ -38,10 +38,18 @@ Health Connect is useful for reading completed sleep records, but Android's own 
 
 The project is initialized with Android phone and Wear OS modules plus planning documentation. The phone app now includes the first local trigger/task path: a simulated asleep trigger, configurable delayed execution for the first task, media pause through active media sessions, and a local event log.
 
-The next implementation milestone is the Wear OS sleep and wake signal bridge.
+The core behavior is split into testable trigger, routing, scheduling, and task execution layers. The app also has a default route for the second trigger, stood up after wake, so watch or phone movement events can schedule a task without changing the task engine.
+
+The next implementation milestone is runtime validation on Waydroid, the Android emulator, or a physical device, followed by real Wear OS Health Services transport.
 
 ## Build
 
 ```bash
 gradle --no-daemon assembleDebug
+```
+
+Run no-emulator unit tests:
+
+```bash
+gradle --no-daemon :app:testDebugUnitTest
 ```

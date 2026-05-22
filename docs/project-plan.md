@@ -24,15 +24,16 @@ Build an Android app with a Wear OS companion that runs designated tasks from sl
 
 ### 2. Local Trigger Engine
 
-- Add a local database for trigger definitions and event history. Partially complete with a SharedPreferences-backed event log.
+- Add a local database for trigger definitions and event history. Partially complete with a SharedPreferences-backed event log and repository interface.
 - Add a simulated sleep trigger for development. Complete.
 - Add a delayed task scheduler. Complete with platform `AlarmManager`.
 - Add the "pause all active media" task. Complete through `MediaSessionManager`, pending real-device permission verification.
+- Add unit-testable trigger routing, scheduling, task execution, and wake/stand-up logic. Complete.
 
 ### 3. Wear OS Sleep Trigger
 
 - Add Wear OS Health Services passive monitoring integration.
-- Send sleep trigger events from watch to phone.
+- Send sleep trigger events from watch to phone. Payload contract and phone routing layer exist; transport implementation remains.
 - Add fallback/manual simulation controls for devices that do not expose real-time sleep events.
 
 ### 4. Health Connect History
@@ -43,9 +44,9 @@ Build an Android app with a Wear OS companion that runs designated tasks from sl
 
 ### 5. Stand-Up After Wake Trigger
 
-- Detect wake transition from watch-side or finalized sleep data.
-- Watch for stand-up or movement after wake using wearable sensor/activity signals and phone-side Activity Recognition where useful.
-- Add a configurable task slot for this trigger.
+- Detect wake transition from watch-side or finalized sleep data. Pure state-machine support exists.
+- Watch for stand-up or movement after wake using wearable sensor/activity signals and phone-side Activity Recognition where useful. Debounced movement logic exists.
+- Add a configurable task slot for this trigger. Default route exists.
 
 ### 6. Reliability and Release Readiness
 
@@ -63,4 +64,4 @@ Build an Android app with a Wear OS companion that runs designated tasks from sl
 
 ## Next Development Step
 
-Implement milestone 3: a Wear OS signal bridge that can send normalized watch-side sleep and wake events to the phone trigger engine.
+Validate the phone app on Waydroid, emulator, or a physical device, then implement the real Wear OS signal transport.

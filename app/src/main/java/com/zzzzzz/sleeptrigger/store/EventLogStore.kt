@@ -11,10 +11,10 @@ import com.zzzzzz.sleeptrigger.engine.TriggerType
 import org.json.JSONArray
 import org.json.JSONObject
 
-class EventLogStore(context: Context) {
+class EventLogStore(context: Context) : TaskEventRepository {
     private val preferences = context.getSharedPreferences("event-log", Context.MODE_PRIVATE)
 
-    fun append(triggerEvent: TriggerEvent, taskRun: TaskRun) {
+    override fun append(triggerEvent: TriggerEvent, taskRun: TaskRun) {
         val entries = readJsonArray()
         entries.put(
             JSONObject()
@@ -24,7 +24,7 @@ class EventLogStore(context: Context) {
         writeJsonArray(entries)
     }
 
-    fun updateTaskRun(taskRun: TaskRun) {
+    override fun updateTaskRun(taskRun: TaskRun) {
         val entries = readJsonArray()
         for (index in 0 until entries.length()) {
             val entry = entries.getJSONObject(index)
@@ -37,11 +37,11 @@ class EventLogStore(context: Context) {
         }
     }
 
-    fun findTaskRun(id: String): TaskRun? {
+    override fun findTaskRun(id: String): TaskRun? {
         return readAll().firstOrNull { it.taskRun.id == id }?.taskRun
     }
 
-    fun readAll(): List<LoggedTaskEvent> {
+    override fun readAll(): List<LoggedTaskEvent> {
         val entries = readJsonArray()
         return (0 until entries.length()).map { index ->
             val entry = entries.getJSONObject(index)
@@ -67,6 +67,7 @@ class EventLogStore(context: Context) {
             .put("source", source.name)
             .put("detectedAtMillis", detectedAtMillis)
             .put("confidence", confidence.toDouble())
+            .put("metadata", metadata.toJson())
     }
 
     private fun TaskRun.toJson(): JSONObject {
@@ -87,7 +88,8 @@ class EventLogStore(context: Context) {
             triggerType = TriggerType.valueOf(getString("triggerType")),
             source = TriggerSource.valueOf(getString("source")),
             detectedAtMillis = getLong("detectedAtMillis"),
-            confidence = getDouble("confidence").toFloat()
+            confidence = getDouble("confidence").toFloat(),
+            metadata = optJSONObject("metadata")?.toStringMap().orEmpty()
         )
     }
 
@@ -112,8 +114,17 @@ class EventLogStore(context: Context) {
         return if (isNull(key)) null else getString(key)
     }
 
+    private fun Map<String, String>.toJson(): JSONObject {
+        val json = JSONObject()
+        forEach { (key, value) -> json.put(key, value) }
+        return json
+    }
+
+    private fun JSONObject.toStringMap(): Map<String, String> {
+        return keys().asSequence().associateWith { key -> getString(key) }
+    }
+
     private companion object {
         const val KEY_ENTRIES = "entries"
     }
 }
-

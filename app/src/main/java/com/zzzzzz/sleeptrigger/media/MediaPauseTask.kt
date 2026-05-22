@@ -6,8 +6,8 @@ import android.media.session.MediaController
 import android.media.session.MediaSessionManager
 import android.media.session.PlaybackState
 
-class MediaPauseTask(private val context: Context) {
-    fun pauseActiveSessions(): MediaPauseResult {
+class MediaPauseTask(private val context: Context) : MediaPauser {
+    override fun pauseActiveSessions(): MediaPauseResult {
         val sessionManager = context.getSystemService(MediaSessionManager::class.java)
         val listenerComponent = ComponentName(context, MediaPauseNotificationListener::class.java)
         val activeSessions = try {
