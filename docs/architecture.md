@@ -1,0 +1,64 @@
+# Architecture
+
+## Runtime Flow
+
+1. Wear OS companion observes sleep or activity signals.
+2. Watch sends a normalized trigger event to the phone.
+3. Phone records the raw trigger event.
+4. Trigger engine checks enabled automations and delay settings.
+5. Scheduler queues the task for the configured delay.
+6. Task executor pauses active media sessions.
+7. Event log records the outcome.
+
+## Trigger Model
+
+```text
+TriggerDefinition
+  id
+  type: asleep_detected | stood_up_after_wake
+  enabled
+  delay_seconds
+  task_id
+
+TriggerEvent
+  id
+  trigger_type
+  source: wear_health_services | health_connect | simulated
+  detected_at
+  confidence
+  metadata
+
+TaskRun
+  id
+  trigger_event_id
+  task_type
+  scheduled_for
+  started_at
+  completed_at
+  status
+  error
+```
+
+## Media Pause Action
+
+The phone app needs notification listener access to enumerate active media sessions for normal third-party apps. The action should:
+
+- Query active sessions through `MediaSessionManager`.
+- Filter sessions with playback state indicating active playback.
+- Send pause to each active controller.
+- Record the packages affected and any sessions that reject control.
+
+## Sleep Detection Strategy
+
+Real-time trigger detection should come from the Wear OS companion where supported. Health Connect should be used for completed sleep session history and reconciliation after wake, because finalized sleep sessions may not be available until the session ends.
+
+## Stand-Up After Wake Strategy
+
+The second trigger should be modeled as a compound trigger:
+
+- A wake transition opens a short monitoring window.
+- Movement or posture-like evidence inside that window is evaluated.
+- The trigger fires only after a debounce period to avoid false positives.
+
+Initial implementation can use a conservative "wake plus steps/activity transition" rule. Later versions can refine this with watch-specific capabilities.
+

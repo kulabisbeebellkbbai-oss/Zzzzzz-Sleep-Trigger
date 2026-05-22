@@ -1,0 +1,40 @@
+# Zzzzzz Sleep Trigger
+
+Zzzzzz Sleep Trigger is an Android and Wear OS app concept for running user-approved tasks when a smartwatch detects sleep and wake-related movement.
+
+The first task is:
+
+- Detect that the user has fallen asleep.
+- Wait for the configured delay, such as 5 minutes.
+- Pause active media playback on the phone.
+- Record the event time and task result locally.
+
+The second trigger is:
+
+- Detect that the user has woken from a sleep session.
+- Fire a trigger when the person stands up or begins moving after waking.
+
+## Initial Scope
+
+This repository starts with a two-module Android baseline:
+
+- `app/`: phone app, task configuration, media control, event log, and user permissions.
+- `wear/`: Wear OS companion, real-time sleep and activity detection bridge.
+- `docs/`: product plan, component map, architecture notes, privacy model, and testing plan.
+
+## Important Platform Constraint
+
+Health Connect is useful for reading completed sleep records, but Android's own guidance says sleep sessions are normally written after the session has finished. Real-time "I just fell asleep" automation therefore needs a watch-side detection path, planned here through Wear OS Health Services passive monitoring, with Health Connect as the historical record and compatibility layer.
+
+## Documentation
+
+- [Project plan](docs/project-plan.md)
+- [Required components](docs/components.md)
+- [Architecture](docs/architecture.md)
+- [Privacy and permissions](docs/privacy-security.md)
+- [Testing plan](docs/testing.md)
+
+## Current Status
+
+The project is initialized with Android phone and Wear OS modules plus planning documentation. The first implementation milestone is a local trigger/task engine that can store a simulated sleep trigger, apply a delay, pause active media sessions, and write an event record.
+

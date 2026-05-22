@@ -1,0 +1,4 @@
+<resources>
+    <style name="WearAppTheme" parent="android:style/Theme.Material.NoActionBar" />
+</resources>
+
