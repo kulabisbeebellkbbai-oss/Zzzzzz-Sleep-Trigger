@@ -1,5 +1,6 @@
 package com.zzzzzz.sleeptrigger.engine
 
+import com.zzzzzz.sleeptrigger.media.MediaPauseResult
 import com.zzzzzz.sleeptrigger.wear.WearTriggerPayload
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -56,5 +57,32 @@ class TriggerRouterTest {
 
         assertEquals(emptyList<LoggedTaskEvent>(), routed)
     }
-}
 
+    @Test
+    fun zeroDelayDefinitionExecutesImmediatelyWhenExecutorProvided() {
+        val repository = InMemoryTaskEventRepository()
+        val scheduler = RecordingTaskScheduler()
+        val mediaPauser = FakeMediaPauser(
+            MediaPauseResult(emptyList(), emptyList(), "No active media sessions found.", true)
+        )
+        val router = TriggerRouter(
+            definitionRepository = InMemoryTriggerDefinitionRepository(
+                listOf(DefaultTriggerDefinitions.stoodUpAfterWake)
+            ),
+            sleepTriggerEngine = SleepTriggerEngine(
+                eventRepository = repository,
+                taskScheduler = scheduler,
+                clock = FakeClock(10_000),
+                idFactory = SequentialIdFactory()
+            ),
+            taskRunExecutor = TaskRunExecutor(repository, mediaPauser, FakeClock(10_001))
+        )
+
+        val routed = router.routeTrigger(TriggerType.STOOD_UP_AFTER_WAKE, TriggerSource.SIMULATED, 1.0f)
+
+        assertEquals(1, routed.size)
+        assertEquals(TaskRunStatus.SUCCEEDED, routed.single().taskRun.status)
+        assertEquals(0, scheduler.scheduled.size)
+        assertEquals(1, mediaPauser.calls)
+    }
+}

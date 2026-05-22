@@ -39,5 +39,28 @@ class SleepTriggerEngineTest {
             engine.scheduleSimulatedSleepMediaPause(-1)
         }
     }
-}
 
+    @Test
+    fun zeroDelayTaskIsPersistedButNotScheduledWithAlarm() {
+        val repository = InMemoryTaskEventRepository()
+        val scheduler = RecordingTaskScheduler()
+        val engine = SleepTriggerEngine(
+            eventRepository = repository,
+            taskScheduler = scheduler,
+            clock = FakeClock(1_000),
+            idFactory = SequentialIdFactory()
+        )
+
+        val loggedEvent = engine.handleTrigger(
+            triggerType = TriggerType.STOOD_UP_AFTER_WAKE,
+            source = TriggerSource.SIMULATED,
+            confidence = 1.0f,
+            delayMillis = 0,
+            taskType = TaskType.PAUSE_MEDIA
+        )
+
+        assertEquals(1_000, loggedEvent.taskRun.scheduledForMillis)
+        assertEquals(0, scheduler.scheduled.size)
+        assertEquals(1, repository.readAll().size)
+    }
+}

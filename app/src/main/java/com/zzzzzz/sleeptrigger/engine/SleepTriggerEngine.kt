@@ -46,14 +46,16 @@ class SleepTriggerEngine(
         )
 
         eventRepository.append(triggerEvent, taskRun)
-        taskScheduler.schedule(
-            ScheduledTaskRequest(
-                taskRunId = taskRun.id,
-                triggerEventId = triggerEvent.id,
-                taskType = taskRun.taskType,
-                scheduledForMillis = taskRun.scheduledForMillis
+        if (delayMillis > 0) {
+            taskScheduler.schedule(
+                ScheduledTaskRequest(
+                    taskRunId = taskRun.id,
+                    triggerEventId = triggerEvent.id,
+                    taskType = taskRun.taskType,
+                    scheduledForMillis = taskRun.scheduledForMillis
+                )
             )
-        )
+        }
         return LoggedTaskEvent(triggerEvent, taskRun)
     }
 }

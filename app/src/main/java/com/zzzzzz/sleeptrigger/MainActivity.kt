@@ -15,10 +15,12 @@ import android.widget.ScrollView
 import android.widget.TextView
 import com.zzzzzz.sleeptrigger.engine.InMemoryTriggerDefinitionRepository
 import com.zzzzzz.sleeptrigger.engine.SleepTriggerEngine
+import com.zzzzzz.sleeptrigger.engine.TaskRunExecutor
 import com.zzzzzz.sleeptrigger.engine.TaskRunStatus
 import com.zzzzzz.sleeptrigger.engine.TriggerRouter
 import com.zzzzzz.sleeptrigger.engine.TriggerSource
 import com.zzzzzz.sleeptrigger.engine.TriggerType
+import com.zzzzzz.sleeptrigger.media.MediaPauseTask
 import com.zzzzzz.sleeptrigger.permissions.AndroidPermissionStatusReader
 import com.zzzzzz.sleeptrigger.permissions.PermissionStatus
 import com.zzzzzz.sleeptrigger.store.EventLogStore
@@ -123,7 +125,11 @@ class MainActivity : Activity() {
                     onClick = {
                         TriggerRouter(
                             definitionRepository = InMemoryTriggerDefinitionRepository(),
-                            sleepTriggerEngine = sleepTriggerEngine()
+                            sleepTriggerEngine = sleepTriggerEngine(),
+                            taskRunExecutor = TaskRunExecutor(
+                                eventRepository = eventLogStore,
+                                mediaPauser = MediaPauseTask(this@MainActivity)
+                            )
                         ).routeTrigger(
                             triggerType = TriggerType.STOOD_UP_AFTER_WAKE,
                             source = TriggerSource.SIMULATED,

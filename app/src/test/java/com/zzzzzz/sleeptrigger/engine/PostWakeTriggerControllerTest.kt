@@ -1,5 +1,6 @@
 package com.zzzzzz.sleeptrigger.engine
 
+import com.zzzzzz.sleeptrigger.media.MediaPauseResult
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -19,6 +20,13 @@ class PostWakeTriggerControllerTest {
                     taskScheduler = scheduler,
                     clock = FakeClock(50_000),
                     idFactory = SequentialIdFactory()
+                ),
+                taskRunExecutor = TaskRunExecutor(
+                    eventRepository = repository,
+                    mediaPauser = FakeMediaPauser(
+                        MediaPauseResult(emptyList(), emptyList(), "No active media sessions found.", true)
+                    ),
+                    clock = FakeClock(50_001)
                 )
             )
         )
@@ -29,8 +37,7 @@ class PostWakeTriggerControllerTest {
 
         assertEquals(1, routed.size)
         assertEquals(TriggerType.STOOD_UP_AFTER_WAKE, routed.single().triggerEvent.triggerType)
-        assertEquals(50_000, routed.single().taskRun.scheduledForMillis)
-        assertEquals(1, scheduler.scheduled.size)
+        assertEquals(TaskRunStatus.SUCCEEDED, routed.single().taskRun.status)
+        assertEquals(0, scheduler.scheduled.size)
     }
 }
-
