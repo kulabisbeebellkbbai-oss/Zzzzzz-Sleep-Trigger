@@ -228,8 +228,13 @@ class MainActivity : Activity() {
             permissions.notificationsEnabled,
             permissions.activityRecognitionGranted
         ).count { it }
-        permissionSummary.text = "$readyCount of 3 access checks ready\n" +
+        val mediaMessage = if (permissions.notificationListenerEnabled) {
+            "Media pause can control active playback sessions."
+        } else {
             "Media pause needs notification listener access before real playback can be controlled."
+        }
+        permissionSummary.text = "$readyCount of 3 access checks ready\n" +
+            mediaMessage
         mediaPermissionStatus.text = "Media control: ${statusWord(permissions.notificationListenerEnabled)}"
         notificationPermissionStatus.text = "Notifications: ${statusWord(permissions.notificationsEnabled)}"
         activityPermissionStatus.text = "Activity recognition: ${statusWord(permissions.activityRecognitionGranted)}"

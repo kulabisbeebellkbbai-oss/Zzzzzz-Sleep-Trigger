@@ -17,4 +17,4 @@ dependencyResolutionManagement {
 rootProject.name = "Zzzzzz Sleep Trigger"
 include(":app")
 include(":wear")
-
+include(":testmedia")
