@@ -12,7 +12,7 @@
 ## Wear OS Companion
 
 - Passive monitoring service for sleep-related and movement-related signals.
-- Watch-to-phone event transport. A local development broadcast transport exists for Waydroid validation; production transport should use Wear OS Data Layer or MessageClient.
+- Watch-to-phone event transport. The Wear app now sends `MessageClient` events over the Wear OS Data Layer and keeps a local development broadcast fallback for Waydroid-style validation.
 - Lightweight status UI for pairing, permission state, and diagnostics.
 - Device capability detection because Health Services support varies by watch.
 
@@ -47,6 +47,7 @@
 - Android activity recognition permission.
 - Notification access grant for controlling active media sessions.
 - Notification permission for foreground/status notifications on Android 13 and newer.
+- Google Play services with Wearable Data Layer support on the phone and watch.
 
 ## External Platform References
 

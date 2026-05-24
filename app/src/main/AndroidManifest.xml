@@ -33,6 +33,18 @@
         </receiver>
 
         <service
+            android:name=".wear.PhoneWearMessageService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
+                <data
+                    android:scheme="wear"
+                    android:host="*"
+                    android:path="/zzzzzz/trigger" />
+            </intent-filter>
+        </service>
+
+        <service
             android:name=".media.MediaPauseNotificationListener"
             android:exported="true"
             android:label="@string/notification_listener_label"

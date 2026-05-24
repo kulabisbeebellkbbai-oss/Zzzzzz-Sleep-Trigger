@@ -43,9 +43,9 @@ The project is initialized with Android phone and Wear OS modules plus planning 
 
 The core behavior is split into testable trigger, routing, scheduling, and task execution layers. The app also has a default route for the second trigger, stood up after wake, so watch or phone movement events can schedule a task without changing the task engine.
 
-The phone app has a native dashboard UI for automation controls, permission state, and recent events. The Wear OS app has a compact trigger/status UI for asleep, awake, and stood-up events, and sends normalized payloads to the phone receiver.
+The phone app has a native dashboard UI for automation controls, permission state, and recent events. The Wear OS app has a compact trigger/status UI for asleep, awake, and stood-up events, and sends normalized payloads to the phone receiver over Wear OS Data Layer messages on paired devices.
 
-The next implementation milestone is replacing the current local development broadcast transport with real Wear OS Data Layer or MessageClient transport, then adding Health Services passive monitoring.
+The next implementation milestone is installing on the TicWatch Pro 3 Ultra GPS and Ulefone Armor X16 Pro pair, validating the Data Layer path on hardware, then adding Health Services passive monitoring.
 
 ## Build
 

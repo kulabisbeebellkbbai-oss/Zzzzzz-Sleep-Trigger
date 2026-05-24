@@ -7,7 +7,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.zzzzzz.sleeptrigger.wear"
+        applicationId = "com.zzzzzz.sleeptrigger"
         minSdk = 30
         targetSdk = 36
         versionCode = 1
@@ -17,4 +17,5 @@ android {
 
 dependencies {
     implementation(project(":shared"))
+    implementation("com.google.android.gms:play-services-wearable:20.0.1")
 }

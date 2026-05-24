@@ -41,14 +41,34 @@ gradle --no-daemon assembleDebug
 
 Current verification:
 
-- `gradle --no-daemon --console=plain :app:testDebugUnitTest :app:assembleDebug :wear:assembleDebug :testmedia:assembleDebug` passes.
+- `gradle --no-daemon --console=plain :app:testDebugUnitTest :app:assembleDebug :wear:assembleDebug` passes with the Wear OS Data Layer dependency.
 - The phone app exposes a 10-second simulated sleep trigger for local verification and a 5-minute simulated sleep trigger matching the first requested delay scenario.
 - The phone app exposes a manual stood-up-after-wake trigger route.
 - `testmedia/` provides a local MediaSession target for verifying that Zzzzzz can pause an active media session through notification listener access.
 - Waydroid verification passed for the Wear UI stood-up path: tapping the Wear app's stood-up control delivered `STOOD_UP_AFTER_WAKE` to the phone receiver, executed `PAUSE_MEDIA`, and the test media target recorded `pausedByController=true`.
 - Waydroid verification passed for the Wear UI asleep path: tapping the Wear app's asleep control delivered `ASLEEP_DETECTED`, recorded a scheduled `PAUSE_MEDIA` task with the default 5-minute delay, and left media playing until the scheduled time.
+- Physical target identified: TicWatch Pro 3 Ultra GPS paired with a Ulefone Armor X16 Pro.
+- Host ADB check on 2026-05-24 did not show the Ulefone or TicWatch as connected devices. USB enumeration did not show an Android device, so physical install/testing is blocked until USB debugging or wireless debugging is enabled.
 
 Current runtime limitation:
 
 - The Android SDK emulator still depends on host virtualization being enabled in firmware for normal performance. Waydroid is the active local runtime for now.
-- The current Wear-to-phone transport is a development-only local broadcast. Production watch/phone delivery still needs Wear OS Data Layer or MessageClient integration.
+- The Wear APK now uses the same application ID as the phone APK so Wear OS Data Layer private app messages can route between the paired devices. This is correct for separate phone/watch devices, but it means the phone and Wear APKs cannot both be installed into one single Android runtime under the default debug variant.
+
+## Physical Device Setup
+
+For the Ulefone phone:
+
+1. Enable Developer options.
+2. Enable USB debugging or Wireless debugging.
+3. Connect it to this host and accept the RSA debugging prompt.
+4. Verify with `adb devices -l`.
+
+For the TicWatch:
+
+1. Enable Developer options.
+2. Enable ADB debugging and Debug over Wi-Fi.
+3. Connect with `adb connect <watch-ip>:5555` if direct watch install is needed.
+4. Install `wear/build/outputs/apk/debug/wear-debug.apk` to the watch and `app/build/outputs/apk/debug/app-debug.apk` to the phone.
+
+After install, grant notification listener access on the phone for Zzzzzz, start media playback on the phone, then tap `Stood up` in the Wear app to verify immediate media pause through the Data Layer path.

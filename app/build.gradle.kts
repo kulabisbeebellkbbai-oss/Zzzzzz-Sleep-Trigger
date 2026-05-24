@@ -17,5 +17,6 @@ android {
 
 dependencies {
     implementation(project(":shared"))
+    implementation("com.google.android.gms:play-services-wearable:20.0.1")
     testImplementation("junit:junit:4.13.2")
 }

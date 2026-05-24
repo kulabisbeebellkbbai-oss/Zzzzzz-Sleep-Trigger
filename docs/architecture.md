@@ -11,10 +11,14 @@
 7. Event log records the outcome.
 
 The current phone implementation supports the same flow from simulated phone
-triggers and a Wear companion development transport. The transport uses the
-shared `WearTriggerPayload` JSON codec and a phone broadcast receiver so the
-trigger engine can be exercised in Waydroid before the real Wear OS Data Layer
-transport is added.
+triggers, a local development broadcast, and Wear OS Data Layer messages. The
+Wear app serializes `WearTriggerPayload` through the shared JSON codec and sends
+it with `MessageClient` on `/zzzzzz/trigger`. The phone app receives that path in
+`PhoneWearMessageService`, then routes the decoded payload through the same
+trigger engine used by simulated events.
+
+The local broadcast receiver remains as a development fallback for single-runtime
+testing, but paired phone/watch testing should use the Data Layer path.
 
 ## Trigger Model
 

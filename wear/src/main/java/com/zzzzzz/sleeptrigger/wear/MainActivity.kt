@@ -124,10 +124,25 @@ class MainActivity : Activity() {
             confidence = 1.0f,
             metadata = mapOf("surface" to "manual-watch-ui")
         )
-        transport.send(payload)
         val time = DateFormat.getTimeInstance(DateFormat.SHORT).format(Date())
-        lastEvent = "$name sent\n$time"
+        lastEvent = "$name queued\n$time"
         render()
+        transport.send(payload) { result ->
+            runOnUiThread {
+                lastEvent = when (result) {
+                    is PhoneTriggerTransport.TransportResult.Sent -> {
+                        "$name sent to ${result.deliveredCount}/${result.targetCount} phone node(s)\n$time"
+                    }
+                    PhoneTriggerTransport.TransportResult.NoConnectedPhone -> {
+                        "$name not sent: no connected phone node\n$time"
+                    }
+                    PhoneTriggerTransport.TransportResult.TransportUnavailable -> {
+                        "$name not sent: Wear transport unavailable\n$time"
+                    }
+                }
+                render()
+            }
+        }
     }
 
     private fun render() {
