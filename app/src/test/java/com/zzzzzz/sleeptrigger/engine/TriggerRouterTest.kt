@@ -1,7 +1,7 @@
 package com.zzzzzz.sleeptrigger.engine
 
 import com.zzzzzz.sleeptrigger.media.MediaPauseResult
-import com.zzzzzz.sleeptrigger.wear.WearTriggerPayload
+import com.zzzzzz.sleeptrigger.shared.WearTriggerPayload
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -25,8 +25,8 @@ class TriggerRouterTest {
         val routed = router.routeWearPayload(
             WearTriggerPayload(
                 eventId = "wear-1",
-                triggerType = TriggerType.ASLEEP_DETECTED,
-                source = TriggerSource.WEAR_HEALTH_SERVICES,
+                triggerType = TriggerType.ASLEEP_DETECTED.name,
+                source = TriggerSource.WEAR_HEALTH_SERVICES.name,
                 detectedAtMillis = 9_500,
                 confidence = 0.9f
             )

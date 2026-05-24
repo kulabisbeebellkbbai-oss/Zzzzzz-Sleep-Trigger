@@ -12,7 +12,7 @@
 ## Wear OS Companion
 
 - Passive monitoring service for sleep-related and movement-related signals.
-- Watch-to-phone event transport.
+- Watch-to-phone event transport. A local development broadcast transport exists for Waydroid validation; production transport should use Wear OS Data Layer or MessageClient.
 - Lightweight status UI for pairing, permission state, and diagnostics.
 - Device capability detection because Health Services support varies by watch.
 
@@ -34,6 +34,11 @@
 - Task result log with timestamps and errors.
 - Future task extension points for alarms, smart-home webhooks, notifications, or app intents.
 - User-controlled enable/disable switch per trigger.
+
+## Local Verification Target
+
+- `testmedia/` starts an active `MediaSession` and records whether Zzzzzz paused it.
+- This target allows repeatable media-control verification without installing a third-party player.
 
 ## Permissions and User Grants
 

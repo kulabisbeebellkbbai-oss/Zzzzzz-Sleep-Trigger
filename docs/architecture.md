@@ -10,7 +10,11 @@
 6. Task executor pauses active media sessions.
 7. Event log records the outcome.
 
-The current phone implementation supports the same flow from a simulated sleep trigger while the Wear OS signal bridge is still pending.
+The current phone implementation supports the same flow from simulated phone
+triggers and a Wear companion development transport. The transport uses the
+shared `WearTriggerPayload` JSON codec and a phone broadcast receiver so the
+trigger engine can be exercised in Waydroid before the real Wear OS Data Layer
+transport is added.
 
 ## Trigger Model
 
@@ -55,6 +59,10 @@ The first implementation records a human-readable task result. Package-level dia
 ## Sleep Detection Strategy
 
 Real-time trigger detection should come from the Wear OS companion where supported. Health Connect should be used for completed sleep session history and reconciliation after wake, because finalized sleep sessions may not be available until the session ends.
+
+The current Wear app exposes manual asleep, awake, and stood-up controls for
+transport and task-engine validation. Health Services passive monitoring is the
+next step for real detection.
 
 ## Stand-Up After Wake Strategy
 

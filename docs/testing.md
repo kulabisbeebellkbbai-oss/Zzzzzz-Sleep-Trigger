@@ -41,12 +41,14 @@ gradle --no-daemon assembleDebug
 
 Current verification:
 
-- `gradle --no-daemon assembleDebug` passes for `app` and `wear`.
-- `gradle --no-daemon :app:testDebugUnitTest` passes for the no-emulator trigger/task behavior.
+- `gradle --no-daemon --console=plain :app:testDebugUnitTest :app:assembleDebug :wear:assembleDebug :testmedia:assembleDebug` passes.
 - The phone app exposes a 10-second simulated sleep trigger for local verification and a 5-minute simulated sleep trigger matching the first requested delay scenario.
 - The phone app exposes a manual stood-up-after-wake trigger route.
 - `testmedia/` provides a local MediaSession target for verifying that Zzzzzz can pause an active media session through notification listener access.
+- Waydroid verification passed for the Wear UI stood-up path: tapping the Wear app's stood-up control delivered `STOOD_UP_AFTER_WAKE` to the phone receiver, executed `PAUSE_MEDIA`, and the test media target recorded `pausedByController=true`.
+- Waydroid verification passed for the Wear UI asleep path: tapping the Wear app's asleep control delivered `ASLEEP_DETECTED`, recorded a scheduled `PAUSE_MEDIA` task with the default 5-minute delay, and left media playing until the scheduled time.
 
 Current runtime limitation:
 
-- Emulator and Waydroid UI validation are blocked in this turn, so media-session control and Android permission screens still need device/runtime verification.
+- The Android SDK emulator still depends on host virtualization being enabled in firmware for normal performance. Waydroid is the active local runtime for now.
+- The current Wear-to-phone transport is a development-only local broadcast. Production watch/phone delivery still needs Wear OS Data Layer or MessageClient integration.

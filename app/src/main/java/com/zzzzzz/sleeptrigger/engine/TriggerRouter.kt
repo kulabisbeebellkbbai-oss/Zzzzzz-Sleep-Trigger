@@ -1,6 +1,6 @@
 package com.zzzzzz.sleeptrigger.engine
 
-import com.zzzzzz.sleeptrigger.wear.WearTriggerPayload
+import com.zzzzzz.sleeptrigger.shared.WearTriggerPayload
 
 class TriggerRouter(
     private val definitionRepository: TriggerDefinitionRepository,
@@ -10,8 +10,8 @@ class TriggerRouter(
     fun routeWearPayload(payload: WearTriggerPayload): List<LoggedTaskEvent> {
         payload.validate()
         return routeTrigger(
-            triggerType = payload.triggerType,
-            source = payload.source,
+            triggerType = TriggerType.valueOf(payload.triggerType),
+            source = TriggerSource.valueOf(payload.source),
             confidence = payload.confidence,
             metadata = payload.metadata + ("wearEventId" to payload.eventId)
         )

@@ -11,16 +11,19 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import com.zzzzzz.sleeptrigger.shared.WearTriggerPayload
 import java.text.DateFormat
 import java.util.Date
 
 class MainActivity : Activity() {
     private lateinit var statusText: TextView
     private lateinit var lastEventText: TextView
+    private lateinit var transport: PhoneTriggerTransport
     private var lastEvent: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        transport = PhoneTriggerTransport(this)
         setContentView(buildContent())
         render()
     }
@@ -60,19 +63,19 @@ class MainActivity : Activity() {
 
                     addView(
                         actionButton("Asleep") {
-                            recordEvent("Asleep detected")
+                            sendEvent("Asleep detected", "ASLEEP_DETECTED")
                         },
                         matchWrap(top = 12)
                     )
                     addView(
                         actionButton("Awake") {
-                            recordEvent("Wake detected")
+                            sendEvent("Wake detected", "WAKE_DETECTED")
                         },
                         matchWrap(top = 8)
                     )
                     addView(
                         actionButton("Stood up") {
-                            recordEvent("Stood up after wake")
+                            sendEvent("Stood up after wake", "STOOD_UP_AFTER_WAKE")
                         },
                         matchWrap(top = 8)
                     )
@@ -111,14 +114,24 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun recordEvent(name: String) {
+    private fun sendEvent(name: String, triggerType: String) {
+        val now = System.currentTimeMillis()
+        val payload = WearTriggerPayload(
+            eventId = "wear-$now",
+            triggerType = triggerType,
+            source = "WEAR_HEALTH_SERVICES",
+            detectedAtMillis = now,
+            confidence = 1.0f,
+            metadata = mapOf("surface" to "manual-watch-ui")
+        )
+        transport.send(payload)
         val time = DateFormat.getTimeInstance(DateFormat.SHORT).format(Date())
-        lastEvent = "$name\n$time"
+        lastEvent = "$name sent\n$time"
         render()
     }
 
     private fun render() {
-        statusText.text = "Ready to send sleep and wake events once phone transport is connected."
+        statusText.text = "Sending sleep and wake events to paired phone transport."
         lastEventText.text = lastEvent ?: getString(R.string.wear_status)
     }
 

@@ -16,10 +16,13 @@ The second trigger is:
 
 ## Initial Scope
 
-This repository starts with a two-module Android baseline:
+This repository starts with a phone app, Wear OS companion, shared payload
+module, and local test media target:
 
 - `app/`: phone app, task configuration, media control, event log, and user permissions.
 - `wear/`: Wear OS companion, real-time sleep and activity detection bridge.
+- `shared/`: trigger payload model and JSON codec shared by phone and watch code.
+- `testmedia/`: local MediaSession target used to verify pause behavior.
 - `docs/`: product plan, component map, architecture notes, privacy model, and testing plan.
 
 ## Important Platform Constraint
@@ -40,9 +43,9 @@ The project is initialized with Android phone and Wear OS modules plus planning 
 
 The core behavior is split into testable trigger, routing, scheduling, and task execution layers. The app also has a default route for the second trigger, stood up after wake, so watch or phone movement events can schedule a task without changing the task engine.
 
-The phone app has a native dashboard UI for automation controls, permission state, and recent events. The Wear OS app has a compact trigger/status UI for asleep, awake, and stood-up events while the phone transport is still pending.
+The phone app has a native dashboard UI for automation controls, permission state, and recent events. The Wear OS app has a compact trigger/status UI for asleep, awake, and stood-up events, and sends normalized payloads to the phone receiver.
 
-The next implementation milestone is runtime validation on Waydroid, the Android emulator, or a physical device, followed by real Wear OS Health Services transport.
+The next implementation milestone is replacing the current local development broadcast transport with real Wear OS Data Layer or MessageClient transport, then adding Health Services passive monitoring.
 
 ## Build
 

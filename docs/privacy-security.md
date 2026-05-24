@@ -18,9 +18,9 @@ Sleep times, wake times, sensor-derived activity, and media app state are sensit
 - Explain notification access before sending the user to Android's special app access screen.
 - Treat Health Connect as user-owned data and request only sleep permissions required for this app.
 - Keep watch sensor processing minimal and task-focused.
+- Protect watch-to-phone trigger delivery with a signature-level app permission so unrelated apps cannot inject sleep or wake trigger events.
 
 ## Public Repository Rules
 
 - Do not commit signing keys, keystores, local SDK paths, private notes, generated APKs, or local agent metadata.
 - Keep `.agents/` and `.codex/` local-only unless a future file is intentionally sanitized for publication.
-
