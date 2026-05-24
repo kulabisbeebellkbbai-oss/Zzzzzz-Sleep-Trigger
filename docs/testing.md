@@ -56,11 +56,13 @@ Current verification:
 - TicWatch to Ulefone Data Layer verification passed for the immediate stood-up route: tapping `Stood up` on the watch sent to `1/1` phone node, the phone received `STOOD_UP_AFTER_WAKE`, executed `PAUSE_MEDIA`, and `testmedia/` recorded `pausedByController=true`.
 - TicWatch to Ulefone Data Layer verification passed for the asleep route through the Wear test intent: the phone received `ASLEEP_DETECTED`, recorded a scheduled `PAUSE_MEDIA` task with the default 5-minute delay, and left media playing immediately.
 - TicWatch UI fit was verified with `uiautomator`; all three trigger controls and the send status fit within the 454 x 454 round display.
+- TicWatch Health Services passive monitoring registration passed: the Wear app registered `PassiveMonitoringClient`, persisted `Passive monitoring registered`, and received `USER_ACTIVITY_PASSIVE` from `WearPassiveTriggerService`.
 
 Current runtime limitation:
 
 - The Android SDK emulator still depends on host virtualization being enabled in firmware for normal performance. Waydroid is the active local runtime for now.
 - The Wear APK now uses the same application ID as the phone APK so Wear OS Data Layer private app messages can route between the paired devices. This is correct for separate phone/watch devices, but it means the phone and Wear APKs cannot both be installed into one single Android runtime under the default debug variant.
+- Natural `USER_ACTIVITY_ASLEEP` validation requires wearing the watch through a sleep session. The current hardware proof verifies Health Services passive registration and live passive activity callbacks, not an overnight sleep transition.
 
 ## Physical Device Setup
 
@@ -87,4 +89,12 @@ adb -s <watch> shell am start -S \
   -n com.zzzzzz.sleeptrigger/com.zzzzzz.sleeptrigger.wear.MainActivity \
   -a com.zzzzzz.sleeptrigger.wear.SEND_TEST_TRIGGER \
   --es triggerType STOOD_UP_AFTER_WAKE
+```
+
+To force passive monitoring registration over ADB:
+
+```bash
+adb -s <watch> shell am start -S \
+  -n com.zzzzzz.sleeptrigger/com.zzzzzz.sleeptrigger.wear.MainActivity \
+  -a com.zzzzzz.sleeptrigger.wear.REGISTER_PASSIVE_MONITORING
 ```

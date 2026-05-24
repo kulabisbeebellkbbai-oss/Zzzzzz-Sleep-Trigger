@@ -11,7 +11,7 @@
 
 ## Wear OS Companion
 
-- Passive monitoring service for sleep-related and movement-related signals.
+- Passive monitoring service for Health Services user-activity signals. Initial implementation registers passive user activity updates and maps asleep plus post-sleep passive/exercise transitions into trigger events.
 - Watch-to-phone event transport. The Wear app now sends `MessageClient` events over the Wear OS Data Layer and keeps a local development broadcast fallback for Waydroid-style validation.
 - Lightweight status UI for pairing, permission state, and diagnostics.
 - Device capability detection because Health Services support varies by watch.

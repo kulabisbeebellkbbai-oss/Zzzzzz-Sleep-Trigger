@@ -65,8 +65,10 @@ The first implementation records a human-readable task result. Package-level dia
 Real-time trigger detection should come from the Wear OS companion where supported. Health Connect should be used for completed sleep session history and reconciliation after wake, because finalized sleep sessions may not be available until the session ends.
 
 The current Wear app exposes manual asleep, awake, and stood-up controls for
-transport and task-engine validation. Health Services passive monitoring is the
-next step for real detection.
+transport and task-engine validation. It also registers Wear OS Health Services
+passive user-activity monitoring. `USER_ACTIVITY_ASLEEP` emits
+`ASLEEP_DETECTED`; a transition from asleep to passive/exercise emits
+`WAKE_DETECTED` and `STOOD_UP_AFTER_WAKE` with debounce.
 
 ## Stand-Up After Wake Strategy
 
@@ -76,4 +78,7 @@ The second trigger should be modeled as a compound trigger:
 - Movement or posture-like evidence inside that window is evaluated.
 - The trigger fires only after a debounce period to avoid false positives.
 
-Initial implementation can use a conservative "wake plus steps/activity transition" rule. Later versions can refine this with watch-specific capabilities.
+The initial implementation uses Health Services `UserActivityState`: asleep
+opens the sleep state, and the first passive/exercise update after asleep fires
+the stood-up-after-wake route. Later versions can refine this with step deltas,
+body position signals if available, and user-tuned debounce windows.

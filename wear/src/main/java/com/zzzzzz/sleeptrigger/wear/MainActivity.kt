@@ -1,6 +1,8 @@
 package com.zzzzzz.sleeptrigger.wear
 
 import android.app.Activity
+import android.Manifest
+import android.content.pm.PackageManager
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.content.Intent
@@ -19,12 +21,15 @@ class MainActivity : Activity() {
     private lateinit var statusText: TextView
     private lateinit var lastEventText: TextView
     private lateinit var transport: PhoneTriggerTransport
+    private lateinit var passiveRegistrar: WearPassiveMonitoringRegistrar
     private var lastEvent: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         transport = PhoneTriggerTransport(this)
+        passiveRegistrar = WearPassiveMonitoringRegistrar(this)
         setContentView(buildContent())
+        ensureActivityPermissionAndRegister()
         render()
         handleIntent(intent)
     }
@@ -157,20 +162,51 @@ class MainActivity : Activity() {
     }
 
     private fun handleIntent(intent: Intent?) {
-        if (intent?.action != ACTION_SEND_TEST_TRIGGER) return
-        val triggerType = intent.getStringExtra(EXTRA_TRIGGER_TYPE) ?: "STOOD_UP_AFTER_WAKE"
-        val name = when (triggerType) {
-            "ASLEEP_DETECTED" -> "Asleep detected"
-            "WAKE_DETECTED" -> "Wake detected"
-            "STOOD_UP_AFTER_WAKE" -> "Stood up after wake"
-            else -> "Wear trigger"
+        when (intent?.action) {
+            ACTION_SEND_TEST_TRIGGER -> {
+                val triggerType = intent.getStringExtra(EXTRA_TRIGGER_TYPE) ?: "STOOD_UP_AFTER_WAKE"
+                val name = when (triggerType) {
+                    "ASLEEP_DETECTED" -> "Asleep detected"
+                    "WAKE_DETECTED" -> "Wake detected"
+                    "STOOD_UP_AFTER_WAKE" -> "Stood up after wake"
+                    else -> "Wear trigger"
+                }
+                sendEvent(name, triggerType)
+            }
+            ACTION_REGISTER_PASSIVE_MONITORING -> {
+                ensureActivityPermissionAndRegister()
+            }
         }
-        sendEvent(name, triggerType)
     }
 
     private fun render() {
-        statusText.text = "Sending sleep and wake events to paired phone transport."
+        statusText.text = "Transport ready.\n${passiveRegistrar.readStatus()}"
         lastEventText.text = lastEvent ?: getString(R.string.wear_status)
+    }
+
+    private fun ensureActivityPermissionAndRegister() {
+        if (checkSelfPermission(Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED) {
+            passiveRegistrar.register {
+                runOnUiThread { render() }
+            }
+        } else {
+            requestPermissions(arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), REQUEST_ACTIVITY_RECOGNITION)
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (
+            requestCode == REQUEST_ACTIVITY_RECOGNITION &&
+            grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED
+        ) {
+            passiveRegistrar.register()
+        }
+        render()
     }
 
     private fun rounded(fill: Int, stroke: Int, radius: Float): GradientDrawable {
@@ -193,7 +229,9 @@ class MainActivity : Activity() {
 
     private companion object {
         const val ACTION_SEND_TEST_TRIGGER = "com.zzzzzz.sleeptrigger.wear.SEND_TEST_TRIGGER"
+        const val ACTION_REGISTER_PASSIVE_MONITORING = "com.zzzzzz.sleeptrigger.wear.REGISTER_PASSIVE_MONITORING"
         const val EXTRA_TRIGGER_TYPE = "triggerType"
+        const val REQUEST_ACTIVITY_RECOGNITION = 1001
         const val COLOR_BACKGROUND = 0xFF101416.toInt()
         const val COLOR_PANEL = 0xFF1F292C.toInt()
         const val COLOR_TEXT = 0xFFF3F7F6.toInt()
