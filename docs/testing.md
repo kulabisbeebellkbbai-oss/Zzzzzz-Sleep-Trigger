@@ -48,7 +48,11 @@ Current verification:
 - Waydroid verification passed for the Wear UI stood-up path: tapping the Wear app's stood-up control delivered `STOOD_UP_AFTER_WAKE` to the phone receiver, executed `PAUSE_MEDIA`, and the test media target recorded `pausedByController=true`.
 - Waydroid verification passed for the Wear UI asleep path: tapping the Wear app's asleep control delivered `ASLEEP_DETECTED`, recorded a scheduled `PAUSE_MEDIA` task with the default 5-minute delay, and left media playing until the scheduled time.
 - Physical target identified: TicWatch Pro 3 Ultra GPS paired with a Ulefone Armor X16 Pro.
-- Host ADB check on 2026-05-24 did not show the Ulefone or TicWatch as connected devices. USB enumeration did not show an Android device, so physical install/testing is blocked until USB debugging or wireless debugging is enabled.
+- Ulefone Armor X16 Pro wireless ADB connected on 2026-05-24 at `192.168.68.102:39233`; phone APK installed and launched on Android 15.
+- Ulefone notification listener access was granted by shell and verified live in `dumpsys notification`.
+- Ulefone physical media-pause verification passed for the immediate stood-up route: the phone app's `Trigger` button recorded `STOOD_UP_AFTER_WAKE`, executed `PAUSE_MEDIA`, and `testmedia/` recorded `pausedByController=true`.
+- Ulefone physical media-pause verification passed for the delayed sleep route: the phone app's `Run 10 sec` button scheduled `ASLEEP_DETECTED`, AlarmManager fired the delayed task, and `testmedia/` recorded `pausedByController=true`.
+- TicWatch direct install/testing is still blocked until watch ADB wireless debugging IP and port are available.
 
 Current runtime limitation:
 
