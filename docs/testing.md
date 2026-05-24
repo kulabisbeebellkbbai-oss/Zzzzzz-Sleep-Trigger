@@ -83,8 +83,8 @@ After install, grant notification listener access on the phone for Zzzzzz, start
 For coordinate-free watch testing over ADB, send the same trigger through the Wear app's test intent:
 
 ```bash
-adb -s <watch> shell am start \
+adb -s <watch> shell am start -S \
   -n com.zzzzzz.sleeptrigger/com.zzzzzz.sleeptrigger.wear.MainActivity \
   -a com.zzzzzz.sleeptrigger.wear.SEND_TEST_TRIGGER \
-  -e triggerType STOOD_UP_AFTER_WAKE
+  --es triggerType STOOD_UP_AFTER_WAKE
 ```
