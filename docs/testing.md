@@ -52,7 +52,10 @@ Current verification:
 - Ulefone notification listener access was granted by shell and verified live in `dumpsys notification`.
 - Ulefone physical media-pause verification passed for the immediate stood-up route: the phone app's `Trigger` button recorded `STOOD_UP_AFTER_WAKE`, executed `PAUSE_MEDIA`, and `testmedia/` recorded `pausedByController=true`.
 - Ulefone physical media-pause verification passed for the delayed sleep route: the phone app's `Run 10 sec` button scheduled `ASLEEP_DETECTED`, AlarmManager fired the delayed task, and `testmedia/` recorded `pausedByController=true`.
-- TicWatch direct install/testing is still blocked until watch ADB wireless debugging IP and port are available.
+- TicWatch Pro 3 Ultra GPS wireless ADB connected on 2026-05-24 at `192.168.68.104:5555`; Wear APK installed and launched on Android 11.
+- TicWatch to Ulefone Data Layer verification passed for the immediate stood-up route: tapping `Stood up` on the watch sent to `1/1` phone node, the phone received `STOOD_UP_AFTER_WAKE`, executed `PAUSE_MEDIA`, and `testmedia/` recorded `pausedByController=true`.
+- TicWatch to Ulefone Data Layer verification passed for the asleep route through the Wear test intent: the phone received `ASLEEP_DETECTED`, recorded a scheduled `PAUSE_MEDIA` task with the default 5-minute delay, and left media playing immediately.
+- TicWatch UI fit was verified with `uiautomator`; all three trigger controls and the send status fit within the 454 x 454 round display.
 
 Current runtime limitation:
 
@@ -76,3 +79,12 @@ For the TicWatch:
 4. Install `wear/build/outputs/apk/debug/wear-debug.apk` to the watch and `app/build/outputs/apk/debug/app-debug.apk` to the phone.
 
 After install, grant notification listener access on the phone for Zzzzzz, start media playback on the phone, then tap `Stood up` in the Wear app to verify immediate media pause through the Data Layer path.
+
+For coordinate-free watch testing over ADB, send the same trigger through the Wear app's test intent:
+
+```bash
+adb -s <watch> shell am start \
+  -n com.zzzzzz.sleeptrigger/com.zzzzzz.sleeptrigger.wear.MainActivity \
+  -a com.zzzzzz.sleeptrigger.wear.SEND_TEST_TRIGGER \
+  -e triggerType STOOD_UP_AFTER_WAKE
+```

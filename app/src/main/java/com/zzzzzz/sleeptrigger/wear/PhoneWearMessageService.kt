@@ -11,6 +11,7 @@ class PhoneWearMessageService : WearableListenerService() {
         if (messageEvent.path != WearTriggerTransportContract.MESSAGE_TRIGGER_PATH) return
         try {
             val encodedPayload = messageEvent.data.toString(Charsets.UTF_8)
+            Log.i(TAG, "Received wear data layer trigger payload")
             PhoneWearTriggerRouter(this).route(WearTriggerPayloadCodec.decode(encodedPayload))
         } catch (exception: RuntimeException) {
             Log.w(TAG, "Failed to route wear data layer payload", exception)

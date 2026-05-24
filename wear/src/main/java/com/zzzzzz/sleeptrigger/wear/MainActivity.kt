@@ -3,11 +3,11 @@ package com.zzzzzz.sleeptrigger.wear
 import android.app.Activity
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
+import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -26,6 +26,13 @@ class MainActivity : Activity() {
         transport = PhoneTriggerTransport(this)
         setContentView(buildContent())
         render()
+        handleIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIntent(intent)
     }
 
     private fun buildContent(): View {
@@ -35,12 +42,12 @@ class MainActivity : Activity() {
                 LinearLayout(this@MainActivity).apply {
                     orientation = LinearLayout.VERTICAL
                     gravity = Gravity.CENTER_HORIZONTAL
-                    setPadding(18, 20, 18, 28)
+                    setPadding(18, 14, 18, 18)
 
                     addView(
                         TextView(this@MainActivity).apply {
                             text = "Zzzzzz"
-                            textSize = 24f
+                            textSize = 20f
                             setTypeface(Typeface.DEFAULT, Typeface.BOLD)
                             setTextColor(COLOR_TEXT)
                             gravity = Gravity.CENTER
@@ -50,10 +57,10 @@ class MainActivity : Activity() {
                     addView(
                         TextView(this@MainActivity).apply {
                             text = "Watch triggers"
-                            textSize = 13f
+                            textSize = 12f
                             setTextColor(COLOR_MUTED)
                             gravity = Gravity.CENTER
-                            setPadding(0, 2, 0, 14)
+                            setPadding(0, 0, 0, 8)
                         },
                         matchWrap()
                     )
@@ -65,26 +72,26 @@ class MainActivity : Activity() {
                         actionButton("Asleep") {
                             sendEvent("Asleep detected", "ASLEEP_DETECTED")
                         },
-                        matchWrap(top = 12)
+                        matchWrap(top = 8)
                     )
                     addView(
                         actionButton("Awake") {
                             sendEvent("Wake detected", "WAKE_DETECTED")
                         },
-                        matchWrap(top = 8)
+                        matchWrap(top = 6)
                     )
                     addView(
                         actionButton("Stood up") {
                             sendEvent("Stood up after wake", "STOOD_UP_AFTER_WAKE")
                         },
-                        matchWrap(top = 8)
+                        matchWrap(top = 6)
                     )
 
                     lastEventText = TextView(this@MainActivity).apply {
-                        textSize = 12f
+                        textSize = 11f
                         setTextColor(COLOR_TEXT)
                         gravity = Gravity.CENTER
-                        setPadding(10, 14, 10, 0)
+                        setPadding(10, 8, 10, 0)
                     }
                     addView(lastEventText, matchWrap())
                 }
@@ -94,23 +101,27 @@ class MainActivity : Activity() {
 
     private fun statusPanel(): TextView {
         return TextView(this).apply {
-            textSize = 13f
+            textSize = 11f
             setTextColor(COLOR_TEXT)
             gravity = Gravity.CENTER
-            setPadding(14, 14, 14, 14)
+            setPadding(12, 8, 12, 8)
             background = rounded(COLOR_PANEL, COLOR_BORDER, 18f)
         }
     }
 
-    private fun actionButton(textValue: String, onClick: () -> Unit): Button {
-        return Button(this).apply {
+    private fun actionButton(textValue: String, onClick: () -> Unit): TextView {
+        return TextView(this).apply {
             text = textValue
             textSize = 13f
-            isAllCaps = false
+            gravity = Gravity.CENTER
             setTextColor(0xFFFFFFFF.toInt())
+            setPadding(8, 0, 8, 0)
             background = rounded(COLOR_ACTION, COLOR_ACTION, 24f)
             setOnClickListener { onClick() }
-            minHeight = 46
+            isClickable = true
+            isFocusable = true
+            minHeight = 42
+            minimumHeight = 42
         }
     }
 
@@ -145,6 +156,18 @@ class MainActivity : Activity() {
         }
     }
 
+    private fun handleIntent(intent: Intent?) {
+        if (intent?.action != ACTION_SEND_TEST_TRIGGER) return
+        val triggerType = intent.getStringExtra(EXTRA_TRIGGER_TYPE) ?: "STOOD_UP_AFTER_WAKE"
+        val name = when (triggerType) {
+            "ASLEEP_DETECTED" -> "Asleep detected"
+            "WAKE_DETECTED" -> "Wake detected"
+            "STOOD_UP_AFTER_WAKE" -> "Stood up after wake"
+            else -> "Wear trigger"
+        }
+        sendEvent(name, triggerType)
+    }
+
     private fun render() {
         statusText.text = "Sending sleep and wake events to paired phone transport."
         lastEventText.text = lastEvent ?: getString(R.string.wear_status)
@@ -169,6 +192,8 @@ class MainActivity : Activity() {
     }
 
     private companion object {
+        const val ACTION_SEND_TEST_TRIGGER = "com.zzzzzz.sleeptrigger.wear.SEND_TEST_TRIGGER"
+        const val EXTRA_TRIGGER_TYPE = "triggerType"
         const val COLOR_BACKGROUND = 0xFF101416.toInt()
         const val COLOR_PANEL = 0xFF1F292C.toInt()
         const val COLOR_TEXT = 0xFFF3F7F6.toInt()
