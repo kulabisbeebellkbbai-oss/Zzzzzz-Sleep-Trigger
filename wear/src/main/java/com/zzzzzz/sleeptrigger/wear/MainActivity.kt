@@ -185,12 +185,16 @@ class MainActivity : Activity() {
     }
 
     private fun ensureActivityPermissionAndRegister() {
-        if (checkSelfPermission(Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED) {
+        val missingPermissions = REQUIRED_PASSIVE_PERMISSIONS
+            .filter { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }
+            .toTypedArray()
+
+        if (missingPermissions.isEmpty()) {
             passiveRegistrar.register {
                 runOnUiThread { render() }
             }
         } else {
-            requestPermissions(arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), REQUEST_ACTIVITY_RECOGNITION)
+            requestPermissions(missingPermissions, REQUEST_PASSIVE_MONITORING_PERMISSIONS)
         }
     }
 
@@ -201,8 +205,9 @@ class MainActivity : Activity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (
-            requestCode == REQUEST_ACTIVITY_RECOGNITION &&
-            grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED
+            requestCode == REQUEST_PASSIVE_MONITORING_PERMISSIONS &&
+            grantResults.isNotEmpty() &&
+            grantResults.all { it == PackageManager.PERMISSION_GRANTED }
         ) {
             passiveRegistrar.register()
         }
@@ -231,7 +236,11 @@ class MainActivity : Activity() {
         const val ACTION_SEND_TEST_TRIGGER = "com.zzzzzz.sleeptrigger.wear.SEND_TEST_TRIGGER"
         const val ACTION_REGISTER_PASSIVE_MONITORING = "com.zzzzzz.sleeptrigger.wear.REGISTER_PASSIVE_MONITORING"
         const val EXTRA_TRIGGER_TYPE = "triggerType"
-        const val REQUEST_ACTIVITY_RECOGNITION = 1001
+        const val REQUEST_PASSIVE_MONITORING_PERMISSIONS = 1001
+        val REQUIRED_PASSIVE_PERMISSIONS = arrayOf(
+            Manifest.permission.ACTIVITY_RECOGNITION,
+            Manifest.permission.BODY_SENSORS
+        )
         const val COLOR_BACKGROUND = 0xFF101416.toInt()
         const val COLOR_PANEL = 0xFF1F292C.toInt()
         const val COLOR_TEXT = 0xFFF3F7F6.toInt()

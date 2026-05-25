@@ -57,6 +57,7 @@ Current verification:
 - TicWatch to Ulefone Data Layer verification passed for the asleep route through the Wear test intent: the phone received `ASLEEP_DETECTED`, recorded a scheduled `PAUSE_MEDIA` task with the default 5-minute delay, and left media playing immediately.
 - TicWatch UI fit was verified with `uiautomator`; all three trigger controls and the send status fit within the 454 x 454 round display.
 - TicWatch Health Services passive monitoring registration passed: the Wear app registered `PassiveMonitoringClient`, persisted `Passive monitoring registered`, and received `USER_ACTIVITY_PASSIVE` from `WearPassiveTriggerService`.
+- Overnight 2026-05-24 to 2026-05-25 did not produce a phone `ASLEEP_DETECTED` event. Watch state showed `USER_ACTIVITY_PASSIVE` at 2026-05-25 02:05:24 EDT and `BODY_SENSORS` was not granted, so the Wear app now requests both `ACTIVITY_RECOGNITION` and `BODY_SENSORS` before passive registration.
 
 Current runtime limitation:
 
