@@ -13,6 +13,14 @@ class WearPassiveTriggerService : PassiveListenerService() {
         val store = WearPassiveTriggerStateStore(this)
         val previousState = store.readLastState()
         store.writeLastState(stateName, now)
+        store.appendHistory(
+            kind = "activity",
+            atMillis = now,
+            values = mapOf(
+                "state" to stateName,
+                "previousState" to previousState.orEmpty()
+            )
+        )
         Log.i(TAG, "Passive user activity update: $stateName, previous=$previousState")
 
         when (state) {
@@ -43,9 +51,23 @@ class WearPassiveTriggerService : PassiveListenerService() {
         previousState: String?
     ) {
         if (!store.shouldSend(triggerType, now)) {
+            store.appendHistory(
+                kind = "debounced",
+                atMillis = now,
+                values = mapOf("triggerType" to triggerType)
+            )
             Log.i(TAG, "Skipping debounced $triggerType")
             return
         }
+        store.appendHistory(
+            kind = "trigger",
+            atMillis = now,
+            values = mapOf(
+                "triggerType" to triggerType,
+                "state" to stateName,
+                "previousState" to previousState.orEmpty()
+            )
+        )
         WearHealthTriggerSender(this).send(
             triggerType = triggerType,
             confidence = 0.85f,

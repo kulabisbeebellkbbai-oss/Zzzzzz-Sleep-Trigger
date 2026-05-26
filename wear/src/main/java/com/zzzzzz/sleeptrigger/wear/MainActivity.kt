@@ -180,7 +180,8 @@ class MainActivity : Activity() {
     }
 
     private fun render() {
-        statusText.text = "Transport ready.\n${passiveRegistrar.readStatus()}"
+        statusText.text = "Transport ready.\n${passiveRegistrar.readStatus()}\n" +
+            WearPassiveTriggerStateStore(this).readHistorySummary()
         lastEventText.text = lastEvent ?: getString(R.string.wear_status)
     }
 

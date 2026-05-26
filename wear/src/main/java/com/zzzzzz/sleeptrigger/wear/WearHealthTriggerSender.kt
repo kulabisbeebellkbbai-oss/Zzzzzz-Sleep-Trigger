@@ -7,6 +7,7 @@ import com.zzzzzz.sleeptrigger.shared.WearTriggerPayload
 class WearHealthTriggerSender(context: Context) {
     private val appContext = context.applicationContext
     private val transport = PhoneTriggerTransport(appContext)
+    private val store = WearPassiveTriggerStateStore(appContext)
 
     fun send(triggerType: String, confidence: Float, metadata: Map<String, String>) {
         val now = System.currentTimeMillis()
@@ -19,6 +20,14 @@ class WearHealthTriggerSender(context: Context) {
             metadata = metadata + ("surface" to "health-services-passive")
         )
         transport.send(payload) { result ->
+            store.appendHistory(
+                kind = "delivery",
+                atMillis = System.currentTimeMillis(),
+                values = mapOf(
+                    "triggerType" to triggerType,
+                    "result" to result.toString()
+                )
+            )
             Log.i(TAG, "Health trigger $triggerType delivery result: $result")
         }
     }
