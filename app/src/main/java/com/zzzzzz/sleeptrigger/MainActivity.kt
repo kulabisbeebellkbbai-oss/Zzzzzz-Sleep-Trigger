@@ -1,6 +1,5 @@
 package com.zzzzzz.sleeptrigger
 
-import android.app.Activity
 import android.content.Intent
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
@@ -13,6 +12,11 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import androidx.activity.ComponentActivity
+import androidx.activity.result.ActivityResultLauncher
+import androidx.health.connect.client.PermissionController
+import androidx.health.connect.client.permission.HealthPermission
+import androidx.health.connect.client.records.SleepSessionRecord
 import com.zzzzzz.sleeptrigger.engine.InMemoryTriggerDefinitionRepository
 import com.zzzzzz.sleeptrigger.engine.SleepTriggerEngine
 import com.zzzzzz.sleeptrigger.engine.TaskRunExecutor
@@ -20,6 +24,7 @@ import com.zzzzzz.sleeptrigger.engine.TaskRunStatus
 import com.zzzzzz.sleeptrigger.engine.TriggerRouter
 import com.zzzzzz.sleeptrigger.engine.TriggerSource
 import com.zzzzzz.sleeptrigger.engine.TriggerType
+import com.zzzzzz.sleeptrigger.health.HealthConnectSleepImportController
 import com.zzzzzz.sleeptrigger.media.MediaPauseTask
 import com.zzzzzz.sleeptrigger.permissions.AndroidPermissionStatusReader
 import com.zzzzzz.sleeptrigger.permissions.PermissionStatus
@@ -28,16 +33,24 @@ import com.zzzzzz.sleeptrigger.task.AlarmTaskScheduler
 import java.text.DateFormat
 import java.util.Date
 
-class MainActivity : Activity() {
+class MainActivity : ComponentActivity() {
     private lateinit var permissionSummary: TextView
     private lateinit var eventSummary: TextView
+    private lateinit var healthImportSummary: TextView
     private lateinit var mediaPermissionStatus: TextView
     private lateinit var notificationPermissionStatus: TextView
     private lateinit var activityPermissionStatus: TextView
+    private lateinit var healthConnectStatus: TextView
+    private lateinit var healthPermissionLauncher: ActivityResultLauncher<Set<String>>
     private lateinit var eventLogStore: EventLogStore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        healthPermissionLauncher = registerForActivityResult(
+            PermissionController.createRequestPermissionResultContract()
+        ) {
+            renderStatus()
+        }
         eventLogStore = EventLogStore(this)
         setContentView(buildContent())
         renderStatus()
@@ -119,6 +132,24 @@ class MainActivity : Activity() {
             )
             addView(
                 automationRow(
+                    title = "Completed sleep import",
+                    detail = "Read Health Connect sleep sessions from the last 48 hours.",
+                    buttonText = "Import",
+                    onClick = {
+                        importCompletedSleepSessions()
+                        renderStatus()
+                    }
+                )
+            )
+            healthImportSummary = TextView(this@MainActivity).apply {
+                text = "Sleep import: not run"
+                textSize = 13f
+                setTextColor(COLOR_MUTED)
+                setPadding(18, 8, 18, 2)
+            }
+            addView(healthImportSummary)
+            addView(
+                automationRow(
                     title = "Stood up after wake",
                     detail = "Fire the wake movement trigger route.",
                     buttonText = "Trigger",
@@ -147,14 +178,22 @@ class MainActivity : Activity() {
             mediaPermissionStatus = permissionRow("Media control")
             notificationPermissionStatus = permissionRow("Notifications")
             activityPermissionStatus = permissionRow("Activity recognition")
+            healthConnectStatus = permissionRow("Health Connect sleep")
             addView(mediaPermissionStatus)
             addView(notificationPermissionStatus)
             addView(activityPermissionStatus)
+            addView(healthConnectStatus)
             addView(
                 primaryButton("Open notification access") {
                     startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
                 },
                 matchWrap(top = 14)
+            )
+            addView(
+                primaryButton("Grant sleep access") {
+                    healthPermissionLauncher.launch(setOf(SLEEP_READ_PERMISSION))
+                },
+                matchWrap(top = 8)
             )
         }
     }
@@ -219,6 +258,7 @@ class MainActivity : Activity() {
     private fun renderStatus() {
         val permissions = AndroidPermissionStatusReader(this).read()
         renderPermissions(permissions)
+        healthImportSummary.text = HealthConnectSleepImportController(this).readStatus()
         renderEvents()
     }
 
@@ -238,6 +278,7 @@ class MainActivity : Activity() {
         mediaPermissionStatus.text = "Media control: ${statusWord(permissions.notificationListenerEnabled)}"
         notificationPermissionStatus.text = "Notifications: ${statusWord(permissions.notificationsEnabled)}"
         activityPermissionStatus.text = "Activity recognition: ${statusWord(permissions.activityRecognitionGranted)}"
+        healthConnectStatus.text = "Health Connect sleep: ${healthConnectStatusWord()}"
     }
 
     private fun renderEvents() {
@@ -266,6 +307,14 @@ class MainActivity : Activity() {
             eventRepository = eventLogStore,
             taskScheduler = AlarmTaskScheduler(this)
         )
+    }
+
+    private fun importCompletedSleepSessions() {
+        healthImportSummary.text = HealthConnectSleepImportController(this).importLast48Hours()
+    }
+
+    private fun healthConnectStatusWord(): String {
+        return HealthConnectSleepImportController(this).healthConnectStatus()
     }
 
     private fun statusWord(enabled: Boolean): String = if (enabled) "ready" else "needs access"
@@ -315,5 +364,6 @@ class MainActivity : Activity() {
         const val COLOR_MUTED = 0xFF5C6875.toInt()
         const val COLOR_BORDER = 0xFFE1E6ED.toInt()
         const val COLOR_ACTION = 0xFF176B5B.toInt()
+        val SLEEP_READ_PERMISSION = HealthPermission.getReadPermission(SleepSessionRecord::class)
     }
 }
