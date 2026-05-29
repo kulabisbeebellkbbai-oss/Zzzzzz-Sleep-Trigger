@@ -28,6 +28,8 @@ import com.zzzzzz.sleeptrigger.health.HealthConnectSleepImportController
 import com.zzzzzz.sleeptrigger.media.MediaPauseTask
 import com.zzzzzz.sleeptrigger.permissions.AndroidPermissionStatusReader
 import com.zzzzzz.sleeptrigger.permissions.PermissionStatus
+import com.zzzzzz.sleeptrigger.sleep.PhoneSleepApiRegistrar
+import com.zzzzzz.sleeptrigger.sleep.PhoneSleepApiReceiver
 import com.zzzzzz.sleeptrigger.store.EventLogStore
 import com.zzzzzz.sleeptrigger.task.AlarmTaskScheduler
 import java.text.DateFormat
@@ -37,6 +39,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var permissionSummary: TextView
     private lateinit var eventSummary: TextView
     private lateinit var healthImportSummary: TextView
+    private lateinit var sleepApiSummary: TextView
     private lateinit var mediaPermissionStatus: TextView
     private lateinit var notificationPermissionStatus: TextView
     private lateinit var activityPermissionStatus: TextView
@@ -54,6 +57,7 @@ class MainActivity : ComponentActivity() {
         eventLogStore = EventLogStore(this)
         setContentView(buildContent())
         handleIntent(intent)
+        PhoneSleepApiRegistrar(this).register()
         renderStatus()
     }
 
@@ -156,6 +160,24 @@ class MainActivity : ComponentActivity() {
                 setPadding(18, 8, 18, 2)
             }
             addView(healthImportSummary)
+            addView(
+                automationRow(
+                    title = "Phone sleep sensing",
+                    detail = "Register Google Play services Sleep API on the phone.",
+                    buttonText = "Register",
+                    onClick = {
+                        PhoneSleepApiRegistrar(this@MainActivity).register()
+                        renderStatus()
+                    }
+                )
+            )
+            sleepApiSummary = TextView(this@MainActivity).apply {
+                text = "Sleep API: not registered"
+                textSize = 13f
+                setTextColor(COLOR_MUTED)
+                setPadding(18, 8, 18, 2)
+            }
+            addView(sleepApiSummary)
             addView(
                 automationRow(
                     title = "Stood up after wake",
@@ -267,6 +289,7 @@ class MainActivity : ComponentActivity() {
         val permissions = AndroidPermissionStatusReader(this).read()
         renderPermissions(permissions)
         healthImportSummary.text = HealthConnectSleepImportController(this).readStatus()
+        sleepApiSummary.text = PhoneSleepApiRegistrar(this).readStatus()
         renderEvents()
     }
 
@@ -324,6 +347,9 @@ class MainActivity : ComponentActivity() {
     private fun handleIntent(intent: Intent?) {
         if (intent?.action == HealthConnectSleepImportController.ACTION_IMPORT_SLEEP) {
             importCompletedSleepSessions()
+        }
+        if (intent?.action == PhoneSleepApiReceiver.ACTION_REGISTER_SLEEP_API) {
+            PhoneSleepApiRegistrar(this).register()
         }
     }
 
