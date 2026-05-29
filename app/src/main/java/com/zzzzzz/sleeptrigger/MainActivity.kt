@@ -53,6 +53,14 @@ class MainActivity : ComponentActivity() {
         }
         eventLogStore = EventLogStore(this)
         setContentView(buildContent())
+        handleIntent(intent)
+        renderStatus()
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIntent(intent)
         renderStatus()
     }
 
@@ -311,6 +319,12 @@ class MainActivity : ComponentActivity() {
 
     private fun importCompletedSleepSessions() {
         healthImportSummary.text = HealthConnectSleepImportController(this).importLast48Hours()
+    }
+
+    private fun handleIntent(intent: Intent?) {
+        if (intent?.action == HealthConnectSleepImportController.ACTION_IMPORT_SLEEP) {
+            importCompletedSleepSessions()
+        }
     }
 
     private fun healthConnectStatusWord(): String {

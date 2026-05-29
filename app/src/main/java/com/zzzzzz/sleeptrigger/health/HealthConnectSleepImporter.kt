@@ -148,18 +148,23 @@ class HealthConnectSleepImportController(private val context: Context) {
                 .also(statusStore::write)
         }
 
-        val eventLogStore = EventLogStore(appContext)
-        val result = SleepSessionTriggerImporter(
-            sleepImporter = AndroidHealthConnectSleepImporter(appContext),
-            importedStore = SharedPreferencesImportedSleepSessionStore(appContext),
-            triggerRouter = TriggerRouter(
-                definitionRepository = InMemoryTriggerDefinitionRepository(),
-                sleepTriggerEngine = SleepTriggerEngine(
-                    eventRepository = eventLogStore,
-                    taskScheduler = AlarmTaskScheduler(appContext)
+        val result = runCatching {
+            val eventLogStore = EventLogStore(appContext)
+            SleepSessionTriggerImporter(
+                sleepImporter = AndroidHealthConnectSleepImporter(appContext),
+                importedStore = SharedPreferencesImportedSleepSessionStore(appContext),
+                triggerRouter = TriggerRouter(
+                    definitionRepository = InMemoryTriggerDefinitionRepository(),
+                    sleepTriggerEngine = SleepTriggerEngine(
+                        eventRepository = eventLogStore,
+                        taskScheduler = AlarmTaskScheduler(appContext)
+                    )
                 )
-            )
-        ).importAndRoute(System.currentTimeMillis() - LOOKBACK_MILLIS)
+            ).importAndRoute(System.currentTimeMillis() - LOOKBACK_MILLIS)
+        }.getOrElse { error ->
+            return "Sleep import failed: ${error.javaClass.simpleName}"
+                .also(statusStore::write)
+        }
 
         return "Sleep import: ${result.importedSessions} sessions, ${result.routedEvents} routed events"
             .also(statusStore::write)
