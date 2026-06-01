@@ -38,7 +38,8 @@ class WearPassiveTriggerStateStore(context: Context) {
         val last = history.getJSONObject(history.length() - 1)
         return "${history.length()} passive records\n" +
             "first=${first.optString("kind")}@${first.optLong("atMillis")}\n" +
-            "last=${last.optString("kind")}@${last.optLong("atMillis")}"
+            "last=${last.optString("kind")}@${last.optLong("atMillis")}\n" +
+            readTelemetryStatus()
     }
 
     fun shouldSend(triggerType: String, nowMillis: Long): Boolean {
@@ -58,6 +59,28 @@ class WearPassiveTriggerStateStore(context: Context) {
         appendHistory("registration", now, mapOf("status" to status))
     }
 
+    fun writeTelemetryStatus(status: String) {
+        val now = System.currentTimeMillis()
+        preferences.edit()
+            .putString(KEY_TELEMETRY_STATUS, status)
+            .putLong(KEY_TELEMETRY_STATUS_AT, now)
+            .apply()
+        appendHistory("telemetryStatus", now, mapOf("status" to status))
+    }
+
+    fun readTelemetryStatus(): String {
+        val status = preferences.getString(KEY_TELEMETRY_STATUS, null) ?: "Telemetry not running"
+        val at = preferences.getLong(KEY_TELEMETRY_STATUS_AT, 0L)
+        return if (at > 0L) "$status\n$at" else status
+    }
+
+    fun shouldSendTelemetrySleep(nowMillis: Long): Boolean {
+        val lastSentAt = preferences.getLong(KEY_LAST_TELEMETRY_SLEEP_SENT_AT, 0L)
+        if (nowMillis - lastSentAt < TELEMETRY_SLEEP_DEBOUNCE_MILLIS) return false
+        preferences.edit().putLong(KEY_LAST_TELEMETRY_SLEEP_SENT_AT, nowMillis).apply()
+        return true
+    }
+
     fun readRegistrationStatus(): String {
         val status = preferences.getString(KEY_REGISTRATION_STATUS, null) ?: "Not registered"
         val at = preferences.getLong(KEY_REGISTRATION_STATUS_AT, 0L)
@@ -72,7 +95,11 @@ class WearPassiveTriggerStateStore(context: Context) {
         const val KEY_REGISTRATION_STATUS = "registrationStatus"
         const val KEY_REGISTRATION_STATUS_AT = "registrationStatusAt"
         const val KEY_HISTORY = "history"
+        const val KEY_TELEMETRY_STATUS = "telemetryStatus"
+        const val KEY_TELEMETRY_STATUS_AT = "telemetryStatusAt"
+        const val KEY_LAST_TELEMETRY_SLEEP_SENT_AT = "lastTelemetrySleepSentAt"
         const val TRIGGER_DEBOUNCE_MILLIS = 10 * 60 * 1000L
+        const val TELEMETRY_SLEEP_DEBOUNCE_MILLIS = 6 * 60 * 60 * 1000L
         const val MAX_HISTORY_ENTRIES = 200
     }
 }

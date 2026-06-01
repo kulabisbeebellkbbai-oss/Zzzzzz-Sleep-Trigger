@@ -9,6 +9,7 @@ enum class TriggerType {
 enum class TriggerSource {
     SIMULATED,
     WEAR_HEALTH_SERVICES,
+    WEAR_TELEMETRY,
     HEALTH_CONNECT,
     PHONE_ACTIVITY_RECOGNITION
 }

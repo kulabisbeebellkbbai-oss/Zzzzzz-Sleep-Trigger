@@ -7,6 +7,7 @@ import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
 import android.content.Intent
 import android.os.Bundle
+import android.os.Build
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -194,6 +195,7 @@ class MainActivity : Activity() {
             passiveRegistrar.register {
                 runOnUiThread { render() }
             }
+            startWearTelemetryService()
         } else {
             requestPermissions(missingPermissions, REQUEST_PASSIVE_MONITORING_PERMISSIONS)
         }
@@ -211,8 +213,19 @@ class MainActivity : Activity() {
             grantResults.all { it == PackageManager.PERMISSION_GRANTED }
         ) {
             passiveRegistrar.register()
+            startWearTelemetryService()
         }
         render()
+    }
+
+    private fun startWearTelemetryService() {
+        val intent = Intent(this, WearTelemetrySleepService::class.java)
+            .setAction(WearTelemetrySleepService.ACTION_START)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent)
+        } else {
+            startService(intent)
+        }
     }
 
     private fun rounded(fill: Int, stroke: Int, radius: Float): GradientDrawable {

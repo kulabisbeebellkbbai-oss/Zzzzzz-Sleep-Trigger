@@ -9,15 +9,21 @@ class WearHealthTriggerSender(context: Context) {
     private val transport = PhoneTriggerTransport(appContext)
     private val store = WearPassiveTriggerStateStore(appContext)
 
-    fun send(triggerType: String, confidence: Float, metadata: Map<String, String>) {
+    fun send(
+        triggerType: String,
+        confidence: Float,
+        metadata: Map<String, String>,
+        source: String = "WEAR_HEALTH_SERVICES",
+        surface: String = "health-services-passive"
+    ) {
         val now = System.currentTimeMillis()
         val payload = WearTriggerPayload(
             eventId = "health-$now",
             triggerType = triggerType,
-            source = "WEAR_HEALTH_SERVICES",
+            source = source,
             detectedAtMillis = now,
             confidence = confidence,
-            metadata = metadata + ("surface" to "health-services-passive")
+            metadata = metadata + ("surface" to surface)
         )
         transport.send(payload) { result ->
             store.appendHistory(
