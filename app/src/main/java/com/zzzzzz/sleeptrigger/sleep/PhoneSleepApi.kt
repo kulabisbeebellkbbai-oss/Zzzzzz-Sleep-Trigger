@@ -77,26 +77,38 @@ class PhoneSleepApiStatusStore(context: Context) {
 
     fun shouldRouteClassifySleep(atMillis: Long): Boolean {
         val lastSentAt = preferences.getLong(KEY_LAST_CLASSIFY_SLEEP_SENT_AT, 0L)
-        return atMillis - lastSentAt >= CLASSIFY_TRIGGER_DEBOUNCE_MILLIS
+        if (atMillis - lastSentAt < CLASSIFY_TRIGGER_DEBOUNCE_MILLIS) return false
+
+        val lastCandidateAt = preferences.getLong(KEY_LAST_CLASSIFY_CANDIDATE_AT, 0L)
+        val previousCandidateCount = preferences.getInt(KEY_CLASSIFY_CANDIDATE_COUNT, 0)
+        val candidateCount = if (atMillis - lastCandidateAt <= CLASSIFY_CONFIRMATION_WINDOW_MILLIS) {
+            previousCandidateCount + 1
+        } else {
+            1
+        }
+        preferences.edit()
+            .putLong(KEY_LAST_CLASSIFY_CANDIDATE_AT, atMillis)
+            .putInt(KEY_CLASSIFY_CANDIDATE_COUNT, candidateCount)
+            .apply()
+        return candidateCount >= REQUIRED_CLASSIFY_CANDIDATES
     }
 
     fun markClassifySleepRouted(atMillis: Long) {
-        preferences.edit().putLong(KEY_LAST_CLASSIFY_SLEEP_SENT_AT, atMillis).apply()
-    }
-
-    fun hasRoutedSegment(segmentId: String): Boolean {
-        return preferences.getBoolean("segment_$segmentId", false)
-    }
-
-    fun markSegmentRouted(segmentId: String) {
-        preferences.edit().putBoolean("segment_$segmentId", true).apply()
+        preferences.edit()
+            .putLong(KEY_LAST_CLASSIFY_SLEEP_SENT_AT, atMillis)
+            .putInt(KEY_CLASSIFY_CANDIDATE_COUNT, 0)
+            .apply()
     }
 
     private companion object {
         const val NAME = "phone-sleep-api-status"
         const val KEY_STATUS = "status"
         const val KEY_LAST_CLASSIFY_SLEEP_SENT_AT = "lastClassifySleepSentAt"
-        const val CLASSIFY_TRIGGER_DEBOUNCE_MILLIS = 6 * 60 * 60 * 1000L
+        const val KEY_LAST_CLASSIFY_CANDIDATE_AT = "lastClassifyCandidateAt"
+        const val KEY_CLASSIFY_CANDIDATE_COUNT = "classifyCandidateCount"
+        const val CLASSIFY_TRIGGER_DEBOUNCE_MILLIS = 12 * 60 * 60 * 1000L
+        const val CLASSIFY_CONFIRMATION_WINDOW_MILLIS = 45 * 60 * 1000L
+        const val REQUIRED_CLASSIFY_CANDIDATES = 2
     }
 }
 
@@ -118,7 +130,7 @@ class PhoneSleepApiReceiver : BroadcastReceiver() {
         if (SleepSegmentEvent.hasEvents(intent)) {
             SleepSegmentEvent.extractEvents(intent).forEach { event ->
                 segments += 1
-                routeSleepSegment(context, event)
+                recordSleepSegment(statusStore, event)
             }
         }
 
@@ -138,6 +150,8 @@ class PhoneSleepApiReceiver : BroadcastReceiver() {
         event: SleepClassifyEvent
     ) {
         if (event.confidence < CLASSIFY_SLEEP_CONFIDENCE_THRESHOLD) return
+        if (event.motion > CLASSIFY_MAX_MOTION) return
+        if (event.light > CLASSIFY_MAX_LIGHT) return
         if (!statusStore.shouldRouteClassifySleep(event.timestampMillis)) return
         routeAsleepDetected(
             context = context,
@@ -153,28 +167,17 @@ class PhoneSleepApiReceiver : BroadcastReceiver() {
         statusStore.markClassifySleepRouted(event.timestampMillis)
     }
 
-    private fun routeSleepSegment(context: Context, event: SleepSegmentEvent) {
+    private fun recordSleepSegment(statusStore: PhoneSleepApiStatusStore, event: SleepSegmentEvent) {
         if (event.status != SleepSegmentEvent.STATUS_SUCCESSFUL &&
             event.status != SleepSegmentEvent.STATUS_MISSING_DATA
         ) {
-            PhoneSleepApiStatusStore(context).write("Sleep API segment status: ${event.status}")
+            statusStore.write("Sleep API segment status: ${event.status}")
             return
         }
-
-        val segmentId = "${event.startTimeMillis}-${event.endTimeMillis}-${event.status}"
-        val statusStore = PhoneSleepApiStatusStore(context)
-        if (statusStore.hasRoutedSegment(segmentId)) return
-        routeAsleepDetected(
-            context = context,
-            confidence = 0.7f,
-            metadata = mapOf(
-                "sleepApiEventType" to "segment",
-                "sleepApiStatus" to event.status.toString(),
-                "sleepStartMillis" to event.startTimeMillis.toString(),
-                "sleepEndMillis" to event.endTimeMillis.toString()
-            )
+        statusStore.write(
+            "Sleep API segment observed: status=${event.status} " +
+                "start=${event.startTimeMillis} end=${event.endTimeMillis}"
         )
-        statusStore.markSegmentRouted(segmentId)
     }
 
     private fun routeAsleepDetected(context: Context, confidence: Float, metadata: Map<String, String>) {
@@ -196,6 +199,8 @@ class PhoneSleepApiReceiver : BroadcastReceiver() {
     companion object {
         const val ACTION_SLEEP_API_EVENT = "com.zzzzzz.sleeptrigger.sleep.SLEEP_API_EVENT"
         const val ACTION_REGISTER_SLEEP_API = "com.zzzzzz.sleeptrigger.sleep.REGISTER_SLEEP_API"
-        const val CLASSIFY_SLEEP_CONFIDENCE_THRESHOLD = 80
+        const val CLASSIFY_SLEEP_CONFIDENCE_THRESHOLD = 90
+        const val CLASSIFY_MAX_MOTION = 2
+        const val CLASSIFY_MAX_LIGHT = 2
     }
 }
