@@ -229,9 +229,9 @@ class WearTelemetrySleepClassifier {
 
     companion object {
         private const val BUCKET_MILLIS = 60_000L
-        private const val WINDOW_MILLIS = 20 * 60 * 1000L
-        private const val REQUIRED_QUIET_MINUTES = 15
-        private const val MAX_BUCKETS = 25
+        private const val WINDOW_MILLIS = 60 * 60 * 1000L
+        private const val REQUIRED_QUIET_MINUTES = 45
+        private const val MAX_BUCKETS = 60
         private const val MIN_SAMPLES_PER_BUCKET = 4
         private const val QUIET_MAX_DELTA = 0.35f
     }

@@ -106,9 +106,9 @@ class PhoneSleepApiStatusStore(context: Context) {
         const val KEY_LAST_CLASSIFY_SLEEP_SENT_AT = "lastClassifySleepSentAt"
         const val KEY_LAST_CLASSIFY_CANDIDATE_AT = "lastClassifyCandidateAt"
         const val KEY_CLASSIFY_CANDIDATE_COUNT = "classifyCandidateCount"
-        const val CLASSIFY_TRIGGER_DEBOUNCE_MILLIS = 12 * 60 * 60 * 1000L
-        const val CLASSIFY_CONFIRMATION_WINDOW_MILLIS = 45 * 60 * 1000L
-        const val REQUIRED_CLASSIFY_CANDIDATES = 2
+        const val CLASSIFY_TRIGGER_DEBOUNCE_MILLIS = 18 * 60 * 60 * 1000L
+        const val CLASSIFY_CONFIRMATION_WINDOW_MILLIS = 60 * 60 * 1000L
+        const val REQUIRED_CLASSIFY_CANDIDATES = 3
     }
 }
 
@@ -199,7 +199,7 @@ class PhoneSleepApiReceiver : BroadcastReceiver() {
     companion object {
         const val ACTION_SLEEP_API_EVENT = "com.zzzzzz.sleeptrigger.sleep.SLEEP_API_EVENT"
         const val ACTION_REGISTER_SLEEP_API = "com.zzzzzz.sleeptrigger.sleep.REGISTER_SLEEP_API"
-        const val CLASSIFY_SLEEP_CONFIDENCE_THRESHOLD = 90
+        const val CLASSIFY_SLEEP_CONFIDENCE_THRESHOLD = 95
         const val CLASSIFY_MAX_MOTION = 2
         const val CLASSIFY_MAX_LIGHT = 2
     }

@@ -99,7 +99,7 @@ class WearPassiveTriggerStateStore(context: Context) {
         const val KEY_TELEMETRY_STATUS_AT = "telemetryStatusAt"
         const val KEY_LAST_TELEMETRY_SLEEP_SENT_AT = "lastTelemetrySleepSentAt"
         const val TRIGGER_DEBOUNCE_MILLIS = 10 * 60 * 1000L
-        const val TELEMETRY_SLEEP_DEBOUNCE_MILLIS = 6 * 60 * 60 * 1000L
+        const val TELEMETRY_SLEEP_DEBOUNCE_MILLIS = 18 * 60 * 60 * 1000L
         const val MAX_HISTORY_ENTRIES = 200
     }
 }

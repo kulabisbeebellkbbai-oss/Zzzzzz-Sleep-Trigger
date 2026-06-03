@@ -21,4 +21,5 @@ dependencies {
     implementation("com.google.android.gms:play-services-wearable:20.0.1")
     implementation("androidx.health:health-services-client:1.1.0-rc02")
     implementation("com.google.guava:guava:33.4.8-android")
+    testImplementation("junit:junit:4.13.2")
 }
