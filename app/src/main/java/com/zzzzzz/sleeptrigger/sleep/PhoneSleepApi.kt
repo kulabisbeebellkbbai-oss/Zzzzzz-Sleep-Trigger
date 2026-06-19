@@ -17,6 +17,7 @@ import com.zzzzzz.sleeptrigger.engine.SleepTriggerEngine
 import com.zzzzzz.sleeptrigger.engine.TriggerRouter
 import com.zzzzzz.sleeptrigger.engine.TriggerSource
 import com.zzzzzz.sleeptrigger.engine.TriggerType
+import com.zzzzzz.sleeptrigger.shared.SleepTriggerActiveWindow
 import com.zzzzzz.sleeptrigger.store.EventLogStore
 import com.zzzzzz.sleeptrigger.task.AlarmTaskScheduler
 
@@ -152,6 +153,13 @@ class PhoneSleepApiReceiver : BroadcastReceiver() {
         if (event.confidence < CLASSIFY_SLEEP_CONFIDENCE_THRESHOLD) return
         if (event.motion > CLASSIFY_MAX_MOTION) return
         if (event.light > CLASSIFY_MAX_LIGHT) return
+        if (!SleepTriggerActiveWindow.isActiveAt(event.timestampMillis)) {
+            statusStore.write(
+                "Sleep API classify ignored outside active window " +
+                    SleepTriggerActiveWindow.DESCRIPTION
+            )
+            return
+        }
         if (!statusStore.shouldRouteClassifySleep(event.timestampMillis)) return
         routeAsleepDetected(
             context = context,
