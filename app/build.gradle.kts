@@ -18,6 +18,7 @@ android {
 dependencies {
     implementation(project(":shared"))
     implementation("androidx.activity:activity:1.11.0")
+    implementation("androidx.fragment:fragment:1.8.5")
     implementation("androidx.health.connect:connect-client:1.1.0")
     implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation("com.google.android.gms:play-services-wearable:20.0.1")
