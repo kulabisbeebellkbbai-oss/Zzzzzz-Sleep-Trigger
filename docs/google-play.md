@@ -19,7 +19,7 @@ Short description: Pause phone media automatically when sleep is detected.
 Full description: Zzzzzz Sleep Trigger pairs an Android phone app with a Wear OS companion to run user-approved sleep and wake automations. The current task pauses active media playback after sleep is detected and records the event locally. Sleep detection uses phone activity recognition and watch telemetry, with local event history and an overnight routing window to reduce daytime false positives.
 Category: Health & Fitness
 Contact email: owner required
-Privacy policy URL: owner required
+Privacy policy URL: `https://github.com/kulabisbeebellkbbai-oss/Zzzzzz-Sleep-Trigger/blob/main/docs/privacy-policy.md`
 
 Assets:
 
@@ -56,5 +56,5 @@ Release notes: Initial internal test build for sleep-triggered media pause and w
 - Create the first app shell for `com.zzzzzz.sleeptrigger` if it does not already exist. The Android Publisher API returned `Package not found: com.zzzzzz.sleeptrigger` on 2026-06-26.
 - Enable Play App Signing and register the local upload certificate.
 - Add the service account JSON at `~/.config/codex/google-play/service-account.json` and grant app-scoped access.
-- Complete privacy policy, data safety, content rating, target audience, contact details, and store-listing assets.
+- Confirm the Play listing developer contact email matches `docs/privacy-policy.md`, then complete data safety, content rating, target audience, contact details, and store-listing assets.
 - Confirm whether phone and Wear artifacts should be published as one package/release or separate Play Console artifacts before non-internal rollout.
