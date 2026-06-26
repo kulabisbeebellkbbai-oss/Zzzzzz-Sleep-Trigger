@@ -2,7 +2,7 @@
 
 Package name: `com.zzzzzz.sleeptrigger`
 Application id: `com.zzzzzz.sleeptrigger`
-Play Console app state: not verified locally
+Play Console app state: API checked 2026-06-26; package not found for the configured service account
 Primary track: internal
 
 ## Signing
@@ -53,7 +53,7 @@ Release notes: Initial internal test build for sleep-triggered media pause and w
 
 ## Owner-Only Play Console Tasks
 
-- Create the first app shell for `com.zzzzzz.sleeptrigger` if it does not already exist.
+- Create the first app shell for `com.zzzzzz.sleeptrigger` if it does not already exist. The Android Publisher API returned `Package not found: com.zzzzzz.sleeptrigger` on 2026-06-26.
 - Enable Play App Signing and register the local upload certificate.
 - Add the service account JSON at `~/.config/codex/google-play/service-account.json` and grant app-scoped access.
 - Complete privacy policy, data safety, content rating, target audience, contact details, and store-listing assets.
